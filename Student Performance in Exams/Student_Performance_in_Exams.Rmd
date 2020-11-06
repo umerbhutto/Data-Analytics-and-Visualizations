@@ -1,0 +1,159 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+# Introduction
+
+This dataset looks at student performance in partiular exams
+
+Source: www.kaggle.com
+
+# Preliminary Analysis and Data Cleanup
+
+```{r, warning = FALSE, message=FALSE}
+# Load necessary packages
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+library(corrplot)
+```
+
+```{r}
+
+data.full <- read.csv("StudentsPerformance.csv")
+summary(data.full)
+
+```
+
+A preliminary analysis of the dataset showed that there were 6 categories in parental level of education shown below:
+
+```{r}
+# Look at parental level of education
+table(data.full$parental.level.of.education)
+
+data.full$parental.level.of.education <- as.character(data.full$parental.level.of.education)
+data.full[data.full$parental.level.of.education == "some college","parental.level.of.education"] <- "associate's degree"
+data.full[data.full$parental.level.of.education == "some high school","parental.level.of.education"] <- "high school"
+data.full$parental.level.of.education <- as.factor(data.full$parental.level.of.education)
+```
+
+To better understand the data, we combined “some college” with “associate’s degree” and “some high school” with “high school”. This will help us consolidate the number of groups in parental.level.of.education and better interpret the results.
+
+# Data Analysis
+
+We have 8 variables divided into 5 categorical variables and 3 dependent variables. We will attempt to understand how each categorical variable affects each dependent variable.
+
+## Math Score
+
+```{r}
+# Math Score
+for (i in c(1:5)){
+  m <- data.full %>% ggplot(aes(x = data.full[,i], y = data.full[,6])) + geom_jitter() + geom_boxplot(alpha = 0.4) + labs(x = colnames(data.full)[i], y = colnames(data.full)[6])
+  print(m)
+}
+```
+
+The analysis conducted shows some interesting results. Based on the boxplot, males have a higher math score than females. We also noticed that group E (race ethnicity) had the highest test score. However, it must be noted that group C and group D had the most people which may skew the results. We also see a larger distribution of scores in group A, group B and group E. There is a much tighter distribution of scores in group B and group C.
+
+The parental level of education also had an observable affect on the math score. For the purposes of this study we have combined “some high school” and “some college” into “high school” and “associate’s degree” respectively. Hence, we see a higher number of observations in both associate’s degree and hgih schoolk categories. Both associate’s degree and high school have a tighter distribution of math test scores. This means that the scores are less likely to be far apart from each other. It is surprising to see bachelor’s degree and master’s degree have significant outliers and a looser distribution of test scores. This may be due to a lower number of observations in both bachelor’s degree and master’s degree categories as compared to the other 2 categories.
+
+We observed that students that took standard lunch had a higher distribution of test scores as compared to the free/reduced lunch. This is also an indicator of the economic well-being of the students. Students who usually partake in free/reduced lunch are from lower-income families. We also noticed that students who took part in the test preparation course had a higher distribution of scores as compared to students that did not take the preparation course. It seems that most students did not take part in the test preparation course which is the cause of the tighter distribution of values. It must be noted that the criteria for the test preparation course e.g. cost, duration, availability are unknown and could be deterrents for students who wish to take part in the preparation course.
+
+```{r}
+# Math Passing
+passing_score <- 65
+data.full$math.pass <- as.factor(ifelse(data.full$math.score >= passing_score, "P","F"))
+table(data.full$math.pass)
+
+for (i in c(1:5)){
+  m <- data.full %>% ggplot(aes(x = data.full[,i], fill = data.full[,9])) + geom_bar() + labs(x = colnames(data.full[i]), fill = colnames(data.full[9]))
+  print(m)
+}
+```
+
+To better understand the results, we set the passing mark at 65 / 100. We observed a higher pass rate for males compared to females. As noted previously, we observed a higher distribution of test scores for group E (race ethnicity). When looking at the pass rates, Group E had the highest pass rate while group A had the lowest pass rates. This was also shown by the boxplots above.
+
+However, we notice that a higher parental level increased the chances of passing. It is interesting to note that there is not a big difference in passrates between a parent with a bachelor’s degree and a parent with a master’s degree.
+
+Students with a standard lunch had a much higher pass rate than students with free/ reduced lunch. As the students get the same lunch, the nutrition / energy gained from the lunch is the same. However, as students with free / reduced lunch are from lower income families, this indicator can be used to show that students from higher income brackets were more likely to succeed than students from lower income brackets.
+
+Lastly, we notice that students that completed the test preparation course were more likely to succeed. TO better understand this indicator, we should gather more information about cost, course availability, etc. to better understand why students enroll / don’t enroll in the course.
+
+## Reading Score
+
+```{r}
+# Reading Score
+for (i in c(1:5)){
+  m <- data.full %>% ggplot(aes(x = data.full[,i], y = data.full[,7])) + geom_jitter() + geom_boxplot(alpha = 0.4) + labs(x = colnames(data.full)[i], y = colnames(data.full)[7])
+  print(m)
+}
+```
+
+The analysis conducted shows some interest results. Females have a higher distribution of scores as compared to males. We also observed that group E, like the math scores, have a higher distribution of scores as compared to other ethnicities. However, we do notice that the distribution of scores for group A and group B is higher than other groups. This shows that there is a great variation in the reading scores for group A and B.
+
+We also observe that there is a high number of tightly grouped values for parents with an education level of an associate’s degree or high school education. We again notice here that parents with an education level of bachelor’s / master’s degree have a higher distribution of reading scores when compared to the other two groups.
+
+We again notice that students with a standard lunch had a higher distribution of values when compared to students with a free / reduced lunch. As stated earlier, we believe this to be an indicator of social status. Students with free / reduced lunch are more likely to be from a lower income family when compared to students with a standard lunch which would expalin a lower reading score.
+
+Lastly, we notice that the test preparation course has an impact on the distribution of test scores. Students that have completed the preparation course were better prepared and hence had a higher distribtuion of reading scores when compared to students that did not take the preparation course.
+
+```{r}
+# Reading Passing
+passing_score <- 65
+data.full$reading.pass <- as.factor(ifelse(data.full$reading.score >= passing_score, "P","F"))
+table(data.full$reading.pass)
+
+for (i in c(1:5)){
+  m <- data.full %>% ggplot(aes(x = data.full[,i], fill = data.full[,10])) + geom_bar() + labs(x = colnames(data.full[i]), fill = colnames(data.full[10]))
+  print(m)
+}
+```
+
+We set the pass rate for the reading score at 65%. We notice that females had a higher pass rate than males. group E, like the math score, had a higher pass rate than the other groups. Other groups have relatively the same pass rates.
+
+Parental level of education also has a significant impact on the pass rates. Like the math scores, a higher level of education leads to a higher chances of passing. students with parents, with a master’s degree, were the most likely to pass as compared to parents with other levels of education.
+
+We observed that lunch had an observable impact on the likelihood of students passing. Students with a standard lunch were more likely to pass as compared to students with free / reduced lunch. This may signify the differences in social standing as discussed before. Students that completed the preparation course were more likely to pass than students that did not take the preparation course
+
+## Writing Score
+
+```{r}
+# Writing Score
+for (i in c(1:5)){
+  m <- data.full %>% ggplot(aes(x = data.full[,i], y = data.full[,8])) + geom_jitter() + geom_boxplot(alpha = 0.4) + labs(x = colnames(data.full)[i], y = colnames(data.full)[8])
+  print(m)
+}
+```
+
+Like the reading score, females had a higher distribution of test scores as compared to males. In race.ethnicity we noticed that group E and group D had a higher distribution of test scores than other groups. However, the distribution of test scores is very close between the different race groups.
+
+The parental level of education had an observable on the distribtuion of test scores. students with parents, with a bachelor’s / master’s degree, were more likely to have a higher test score than the other two groups.
+
+We also noticed that students with a standard lunch had a higher distribution of test scores that students with a free/reduced lunch. This is most likely due to the social standing of the students’ families. Students that completed the test preparation course had a higher test distribution as compared to students that did not take the preparation course.
+
+```{r}
+# Reading Passing
+passing_score <- 65
+data.full$writing.pass <- as.factor(ifelse(data.full$writing.score >= passing_score, "P","F"))
+table(data.full$writing.pass)
+
+for (i in c(1:5)){
+  m <- data.full %>% ggplot(aes(x = data.full[,i], fill = data.full[,11])) + geom_bar() + labs(x = colnames(data.full[i]), fill = colnames(data.full[11]))
+  print(m)
+}
+```
+
+We set the passing score for writing score at 65%. The results of the writing were very similar to the results of the reading score. However, we noticed that group E still had a higher pass rate as compared to the other groups although all groups had a higher distribution of writing scores when compared to the reading scores. 
+
+We once again see that students with parents, with a master’s degree, had the highest pass rates.Students with a standard lunch were more likely to pass as compared to students with reduced / free lunch. This was discussed above in more detail. Students that took the test preparation course were also more likely to pass the writing test.
+
+# Correlation between the Test Scores
+
+In order to better understand the test scores, we believe that there may be a correlation between the various test scores. This is shown below:
+
+```{r}
+mydf <- cor(data.full[c(6,7,8)])
+corrplot(mydf, method = "pie")
+```
+
+Although the math, reading and writing scores are highly correlated, there are some interesting observations. Writing and reading scores are highly correlated. Students that scored highly on a reading score were very likely to score higher on the writing score. This may be due to the similarities between reading and writing.
