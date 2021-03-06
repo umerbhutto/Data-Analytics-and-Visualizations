@@ -15,3 +15,6 @@ Description: A WHO dataset that shows the suicide trend of 100 countries from 19
 
 ## WHO - Global Obesity Trends and Analysis (Python)
 Description: A WHO dataset that shows the obesity trend of over 100 countries from 1975 - 2016 with various other characteristics
+
+## Analysis on E-Commerce Gufhtugu (Python)
+Description: A dataset from Gufhtugu (Pakistan) that shows the book sales by region.
